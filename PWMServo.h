@@ -58,6 +58,8 @@
   #define SERVO_PIN_B 10
 #endif
 
+typedef uint16_t servoPos_t;
+
 class PWMServo
 {
   private:
@@ -66,6 +68,7 @@ class PWMServo
     uint8_t min16;       // minimum pulse, 16uS units  (default is 34)
     uint8_t max16;       // maximum pulse, 16uS units, 0-4ms range (default is 150)
 #if defined(__AVR__)
+    volatile servoPos_t *ocr;     /// Output compare register
     static void seizeTimer1();
     static void releaseTimer1();
     static uint8_t attachedA;

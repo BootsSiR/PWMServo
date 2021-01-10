@@ -88,11 +88,13 @@ uint8_t PWMServo::attach(int pinArg, int min, int max)
   if (pin == SERVO_PIN_A) {
     attachedA = 1;
     TCCR1A = (TCCR1A & ~_BV(COM1A0)) | _BV(COM1A1);
+    ocr = (servoPos_t *)&(OCR1A);
   }
 
   if (pin == SERVO_PIN_B) {
     attachedB = 1;
     TCCR1A = (TCCR1A & ~_BV(COM1B0)) | _BV(COM1B1);
+    ocr = (servoPos_t *)&(OCR1B);
   }
 
   #ifdef SERVO_PIN_C
@@ -108,12 +110,18 @@ void PWMServo::detach()
 {
   // muck with timer flags
   if (pin == SERVO_PIN_A) {
+    // ensure we don't detach mid pulse and send the servo to a weird pos
+    while (TCNT1 < *ocr)
+    ;	  
     attachedA = 0;
     TCCR1A = TCCR1A & ~_BV(COM1A0) & ~_BV(COM1A1);
     pinMode(pin, INPUT);
   }
 
   if (pin == SERVO_PIN_B) {
+    // ensure we don't detach mid pulse and send the servo to a weird pos
+    while (TCNT1 < *ocr)
+    ;	  
     attachedB = 0;
     TCCR1A = TCCR1A & ~_BV(COM1B0) & ~_BV(COM1B1);
     pinMode(pin, INPUT);
